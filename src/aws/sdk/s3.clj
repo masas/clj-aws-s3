@@ -43,11 +43,14 @@
            com.amazonaws.services.s3.model.AbortMultipartUploadRequest
            com.amazonaws.services.s3.model.CompleteMultipartUploadRequest
            com.amazonaws.services.s3.model.UploadPartRequest
+           com.amazonaws.services.s3.model.Region
            java.util.concurrent.Executors
            java.io.ByteArrayInputStream
            java.io.File
            java.io.InputStream
            java.nio.charset.Charset))
+
+(def default-region (atom com.amazonaws.services.s3.model.Region/US_Standard))
 
 (defn- s3-client*
   [cred]
@@ -110,8 +113,9 @@
 
 (defn create-bucket
   "Create a new S3 bucket with the supplied name."
-  [cred ^String name]
-  (to-map (.createBucket (s3-client cred) name)))
+  [cred ^String name & region]
+  (let [region (or (first region) @default-region)]
+    (to-map (.createBucket (s3-client cred) name region))))
 
 (defn delete-bucket
   "Delete the S3 bucket with the supplied name."
